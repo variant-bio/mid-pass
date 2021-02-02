@@ -1,30 +1,29 @@
-####################################################################################
-# flag_calls.py
-# Simple script to merge post-imputation VCF with unfiltered pre-imputation VCF
+###############################################################################
+### COPYRIGHT #################################################################
+#
+# Variant Bio
+#
+# SOFTWARE COPYRIGHT NOTICE AGREEMENT
+# This software and its documentation are copyright (2021) by Variant Bio.
+# All rights are reserved. This software is supplied without any warranty
+# or guaranteed support whatsoever. Variant Bio cannot be responsible for
+# its use, misuse, or functionality.
+#
+# Author: Anne-Katrin Emde
+#
+# version 1.0 flag_calls.py
+#
+############################################################################### 
+# 
+# Script to merge post-imputation VCF with unfiltered pre-imputation VCF
 # Required are two input files in the specified order: 
 #  1) unfiltered.vcf.gz that contains variant calls pre-GQ-filtering
 #  2) imputed.vcf.gz is the Beagle output VCF that contains imputed GT only
-# The two vcf files are expected to contain the same variant sites in the same order and will error out otherwise
-# Sample columns are expected to be in the same order, and only biallelic sites will be handled correctly.
+# The two vcf files are expected to contain the same variant sites in the same 
+# order and will error out otherwise. Sample columns are expected to be in the
+# same order, and only biallelic sites will be handled correctly.
 #
-#
-#    Copyright (C) 2020 Anne-Katrin Emde
-#
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
-#
-#    You should have received a copy of the GNU General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#
-####################################################################################
+###############################################################################
 import sys
 import os
 import gzip
