@@ -6,7 +6,7 @@ This document provides an overview of how the sequencing data in  “Mid-pass wh
 
 ## Processing workflow to generate fully phased and imputed VCF
 
-![workflow overview](https://github.com/variant-bio/mid-pass/blob/master/workflow.png?raw=true)
+![workflow overview](workflow.png)
  
 ## Preprocessing
 Sample level processing down to GVCFs followed the GATK Best Practices guidelines as detailed [here](https://gatk.broadinstitute.org/hc/en-us/articles/360035535932-Germline-short-variant-discovery-SNPs-Indels-). Specifically, after adapter trimming with cutadapt, reads were mapped against GRCh38 with ALT contigs using BWA-mem v0.7.5. Subsequent steps for duplicate marking, sorting, base call quality recalibration and creating GVCFs with HaplotypeCaller were done with versions v2.14 of Picard, v1.10 of samtools, and v4.1.4.0 of GATK. Most steps were run with default parameters except few exceptions, e.g. to remove extremely short alignments. 
@@ -19,8 +19,8 @@ The PASS-only variant calls were further filtered to remove genotype calls below
 The resulting VCF file was then used as input to Beagle 5.1 (using the “gt=” input parameter without reference panel to impute within the provided cohort).
 
 ## Call flagging
-We finally compared the imputed genotypes with the sequencing-based calls before GQ filtering, in order to identify and flag calls where sequencing data (even when at low confidence) was in agreement or disagreement with the imputed call. The script for merging unfiltered and imputed VCF files is provided here (flag_calls.py). It annotates each genotype call with an IM field in decreasing order of confidence. Depending on the downstream application, these flags can be used to treat certain flagged variants with caution. 
+We finally compared the imputed genotypes with the sequencing-based calls before GQ filtering, in order to identify and flag calls where sequencing data (even if at low confidence) was in agreement or disagreement with the imputed call. The script for merging unfiltered and imputed VCF files is provided here (flag_calls.py). It annotates each genotype call with an IM value, where a lower values represents higher confidence in the call. Depending on the downstream application, these flags can be used to treat certain flagged variants with caution or filter them entirely. 
 
-![IM flagging](https://github.com/variant-bio/mid-pass/blob/master/IMflagging.png?raw=true)
+![IM flagging](IMflagging.png)
 
-A call is flagged with IM=0 if sequencing-based genotype and imputed genotype agree fully. IM=1 means the imputed call does not disagree with the sequencing-based call (either because it was missing or we may have only observed one of two alleles in sequencing). IM=2 and IM=3 flag sites with disagreement between sequencing-based and imputed calls. Especially IM=3 calls, where sequencing and imputation called opposite homozygotes, have low genotype accuracy, and may better be set to heterozygous or even excluded from downstream analysis. 
+A call is flagged with IM=0 if sequencing-based genotype and imputed genotype agree fully. IM=1 means the imputed call does not disagree with the sequencing-based call (either because it was missing or we may have only observed one of two alleles in sequencing). IM=2 and IM=3 flag sites with disagreement between sequencing-based and imputed calls. Especially IM=3 calls, where sequencing and imputation called opposite homozygotes, have low genotype accuracy, and may better be set to heterozygous or excluded from downstream analysis. 
