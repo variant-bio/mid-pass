@@ -1,6 +1,4 @@
-# mid-pass
-
-## Methods for mid-pass whole genome sequencing
+# Methods for mid-pass whole genome sequencing
 
 This document provides an overview of how the sequencing data in  “Mid-pass whole genome sequencing enables biomedical genetic studies of diverse populations” were processed. 
 
@@ -22,6 +20,6 @@ The resulting VCF file was then used as input to Beagle 5.1 using the “gt=” 
 ## Call flagging
 We finally compared the imputed genotypes with the sequencing-based calls before GQ filtering, in order to identify and flag calls where sequencing data (even if at low confidence) was in agreement or disagreement with the imputed call. The script for merging unfiltered and imputed VCF files is provided here (flag_calls.py). It annotates each genotype call with an IM value, where a lower values represents higher confidence in the call. Depending on the downstream application, these flags can be used to treat certain flagged variants with caution or filter them entirely. 
 
-<img src="IMflagging.png" alt="IM flagging overview" width="600"/>
+<img src="IMflagging.png" alt="IM flagging overview" width="550"/>
 
 A call is flagged with IM=0 if sequencing-based genotype and imputed genotype agree fully. IM=1 means the imputed call does not disagree with the sequencing-based call (either because it was missing or we may have only observed one of two alleles in sequencing). IM=2 and IM=3 flag sites with disagreement between sequencing-based and imputed calls. Especially IM=3 calls, where sequencing and imputation called opposite homozygotes, have low genotype accuracy, and may better be set to heterozygous or excluded from downstream analysis. 
