@@ -2,6 +2,8 @@
 
 This document provides an overview of how the sequencing data in  “Mid-pass whole genome sequencing enables biomedical genetic studies of diverse populations” were processed. 
 
+This code is freely available for academic and non-commercial research purposes [LICENSE](LICENSE.md).
+
 ## Processing workflow to generate fully phased and imputed VCF
 
 <img src="workflow.png" alt="Workflow overview" width="800"/>
