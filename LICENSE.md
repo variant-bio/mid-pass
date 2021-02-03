@@ -1,10 +1,8 @@
-VARIANT BIO, INC.
+**VARIANT BIO, INC.**
+**SOFTWARE LICENSE AGREEMENT**
+**SINGLE USER LICENSE FOR NOT-FOR-PROFIT ENTITIES**
 
-SOFTWARE LICENSE AGREEMENT
-
-SINGLE USER LICENSE FOR NOT-FOR-PROFIT ENTITIES 
-
-FOR ACADEMIC AND NON-COMMERCIAL RESEARCH PURPOSES ONLY 
+**FOR ACADEMIC AND NON-COMMERCIAL RESEARCH PURPOSES ONLY**
 
 This Agreement is made between the Variant Bio, Inc. with a principal address at 188 E Blaine St., Suite 126, Seattle, WA 98102 (“VARIANT”) and the user of software (“LICENSEE”) and is effective at the date the downloading of software or source code (the “PROGRAM”) is completed. Downloading this software or source code constitutes acceptance of these conditions.
 
