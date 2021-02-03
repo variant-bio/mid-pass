@@ -6,7 +6,8 @@ This document provides an overview of how the sequencing data in  “Mid-pass wh
 
 ## Processing workflow to generate fully phased and imputed VCF
 
-![workflow overview](workflow.png)
+<img src="workflow.png" alt="Workflow overview" width="800"/>
+ 
  
 ## Preprocessing
 Sample level processing down to GVCFs followed the GATK Best Practices guidelines as detailed [here](https://gatk.broadinstitute.org/hc/en-us/articles/360035535932-Germline-short-variant-discovery-SNPs-Indels-). Specifically, after adapter trimming with cutadapt v2.10, reads were mapped against GRCh38 with ALT contigs using BWA-mem v0.7.5. Subsequent steps for duplicate marking, sorting, base call quality recalibration and creating GVCFs with HaplotypeCaller were done with versions v2.14 of Picard, v1.10 of samtools, and v4.1.4.0 of GATK. Most steps were run with default parameter settings with few exceptions, e.g. to remove extremely short alignments. 
