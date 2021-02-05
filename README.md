@@ -20,8 +20,42 @@ The PASS-only variant calls were further filtered to remove low quality genotype
 The resulting VCF file was then used as input to Beagle 5.1 using the “gt=” input parameter without reference panel (i.e. to impute within the provided cohort).
 
 ## Call flagging
-We finally compared the imputed genotypes with the sequencing-based calls before GQ filtering, in order to identify and flag calls where sequencing data (even if at low confidence) was in agreement or disagreement with the imputed call. The script for merging unfiltered and imputed VCF files is provided here (flag_calls.py). It annotates each genotype call with an IM value, where a lower values represents higher confidence in the call. Depending on the downstream application, these flags can be used to treat certain flagged variants with caution or filter them entirely. 
+We finally compared the imputed genotypes with the sequencing-based calls before GQ filtering, in order to identify and flag calls where sequencing data (even if at low confidence) was in agreement or disagreement with the imputed call. The script for merging unfiltered and imputed VCF files is provided here (flag_calls.py). It annotates each genotype call with an IM value, where a lower values represents higher confidence in the call. Depending on the downstream application, these flags can be used to treat certain flagged variants with caution or filter them entirely.
+
 
 <img src="IMflagging.png" alt="IM flagging overview" width="550"/>
 
 A call is flagged with IM=0 if sequencing-based genotype and imputed genotype agree fully. IM=1 means the imputed call does not disagree with the sequencing-based call (either because it was missing or we may have only observed one of two alleles in sequencing). IM=2 and IM=3 flag sites with disagreement between sequencing-based and imputed calls. Especially IM=3 calls, where sequencing and imputation called opposite homozygotes, have low genotype accuracy, and may better be set to heterozygous or excluded from downstream analysis. 
+
+
+## Performance assessment
+
+We assessed recall and precision for called variant sites and non-reference concordance rate (NCR = 1-NDR) of genotype calls for each test sample. The following code snippets detail the commands used to subset test and "truth" VCF files using bcftools (v1.10). This was done for each sample, variant type (snps|indels) and within HC regions or otherwise genomewide.
+
+```# extract sample “truth” calls
+bcftools view [-R $regions] -s $sample -v $type joint.truth.vcf.gz | bcftools view -i ‘FMT/GQ>20’ | bgzip -c > $sample.truth.vcf.gz
+bcftools view -c 1 $sample.truth.vcf.gz | bgzip -c > $sample.truth.sites.vcf.gz
+
+## extract sample test calls - different cases for different experiments
+# 1. from imputed VCF
+bcftools view [-R $regions] -s $sample -v $type joint.imputed.vcf.gz | bgzip -c > $sample.vcf.gz
+
+# 2. from jointly genotyped PASS filter VCF
+bcftools view [-R $regions] -s $sample -v $type joint.vcf.gz | bcftools view -i ‘FMT/GQ>17’ | bgzip -c > $sample.vcf.gz
+
+# 3. from single sample VCF
+bcftools view [-R $regions] -v $type $sample.single.vcf.gz | bcftools view -i ‘FMT/GQ>17’ | bgzip -c > $sample.vcf.gz
+```
+
+The different test VCFs were then compared to the corresponding sample truth VCFs to examine site recall and precision as well as genotype accuracy, using vcf-compare (v0.1.14-12-gcdb80b8).
+
+```
+# get only those sites where sample has a non-ref allele
+bcftools view -c 1 $sample.vcf.gz > $sample.sites.vcf.gz
+
+# site comparison for recall/precision 
+vcf-compare $sample.truth.sites.vcf.gz $sample.sites.vcf.gz | grep ^VN
+
+# genotype comparison for NCR = 1-NDR
+vcf-compare -g $sample.truth.vcf.gz $sample.vcf.gz | grep -A 1 ^GS
+```
