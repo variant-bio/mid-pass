@@ -1,18 +1,19 @@
 ###############################################################################
 ### COPYRIGHT #################################################################
 #
-# Variant Bio
+# Variant Bio, Inc.
 #
 # SOFTWARE COPYRIGHT NOTICE AGREEMENT
 # This software and its documentation are copyright (2021) by Variant Bio.
 # All rights are reserved. This software is supplied without any warranty
 # or guaranteed support whatsoever. Variant Bio cannot be responsible for
-# its use, misuse, or functionality.
+# its use, misuse, or functionality. 
 #
 # Author: Anne-Katrin Emde
 #
 # version 1.0 flag_calls.py
 #
+###############################################################################
 ############################################################################### 
 # 
 # Script to merge post-imputation VCF with unfiltered pre-imputation VCF
@@ -21,7 +22,7 @@
 #  2) imputed.vcf.gz is the Beagle output VCF that contains imputed GT only
 # The two vcf files are expected to contain the same variant sites in the same 
 # order and will error out otherwise. Sample columns are expected to be in the
-# same order, and only biallelic sites will be handled correctly.
+# same order.
 #
 ###############################################################################
 import sys
@@ -32,7 +33,7 @@ from itertools import izip
 
 # Check the number of command line arguments
 if not len(sys.argv)==3:
-    sys.stderr.write("\nError:\tincorrect number of command-line arguments")
+    sys.stderr.write("\nError:\tincorrect number of command-line arguments\n")
     sys.stderr.write("Syntax:\tflag_calls.py unfiltered.vcf.gz imputed.vcf.gz\n")
     sys.stderr.write("\tOutput vcf written to stdout\n")
     sys.exit()
@@ -109,31 +110,37 @@ with gzip.open(sys.argv[1], "r") as file1, gzip.open(sys.argv[2], "r") as file2:
             # strip phase from the GATK VCF
             GTs = GTs.replace("|","/")
             if GTs == "1/0": GTs = "0/1"
-
+            # Note: assuming up to a maximum of 9 alleles
+            GTistr = ''.join(sorted(GTi[0] + GTi[2])) # turn 0|1 and 1|0 into 01  
+            GTsstr = ''.join(sorted(GTs[0] + GTs[2]))
+ 
             # use non-imputed calls to correct/flag imputed calls
-            if (GTi == "0|0" or GTi == "1|1") and (GTs == "0/1"):
-                GTo = GTi    # this used to be set to 0/1
+            # wgs called a het and imputed and wgs call are not the same - potentially seq/mapping error/contamination
+            if (GTsstr[0] != GTsstr[1]) and (GTistr[0]!=GTsstr[0] or GTistr[1]!=GTsstr[1]):
+                GTo = GTi    # this used to be set to het
                 imputed = 2  # set IM flag to 2 - original lowGQ het call in disagreement with imputed call
-            elif (GTi == "0|0" and GTs == "1/1") or (GTi == "1|1" and GTs == "0/0"):
+            # wgs call is hom and neither imputed allele agrees
+            elif (GTsstr[0] != ".") and (GTsstr[0] == GTsstr[1]) and not (GTistr[0]==GTsstr[0] or GTistr[1]==GTsstr[0]):
                 # could use a further distinction based on GQs whether to keep imputed, or set to het 
-                GTo = GTi    # if phase is not needed, setting to 0/1 seems to be most accurate 
-                imputed = 3  # set IM flag to 3 - original lowGQ hom call in disagreement with imputed opposite hom call
+                GTo = GTi    # if phase is not needed, setting to het seems to be most accurate 
+                imputed = 3  # set IM flag to 3 - original lowGQ hom call in disagreement with imputed call (usually opposite hom)
             else:   
-                # Note: this script is not meant for multi-allelic sites but won't complain if they exist
-                # if multi-allelic and allele > 1 is involved it'll always end up in this case and mark the call as imputed (IM=1) unless it agrees with the seq-based call (IM=0)
-                # assuming up to a maximum of 9 alleles
-                GTistr = ''.join(sorted(GTi[0] + GTi[2])) # turn 0|1 and 1|0 into 01  
-                GTsstr = ''.join(sorted(GTs[0] + GTs[2]))
+                # imputed and wgs call are the same
                 if (GTsstr[0] == GTistr[0]) and (GTsstr[1] == GTistr[1]):
                     imputed = 0 
+                # all other cases (either wgs was uncalled or no conflict e.g. 0/0 -> 0/1)
                 else:
                     imputed = 1
+                # we do this anyway for all cases    
                 GTo = GTi
             
+ 
+           
             # write out this sample's info with IM tag added
             indexStart = s.find(':')
             sys.stdout.write("\t" + GTo + s[int(indexStart):] + ":" + str(imputed))
     
+            # if uncalled GT then always use IM=1
             #if s.startswith("."):
             #    sys.stdout.write("\t" + GTo + s[int(indexStart):] + ":1")
             #else:
