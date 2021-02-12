@@ -59,3 +59,6 @@ vcf-compare $sample.truth.sites.vcf.gz $sample.sites.vcf.gz | grep ^VN
 # genotype comparison for NCR = 1-NDR
 vcf-compare -g $sample.truth.vcf.gz $sample.vcf.gz | grep -A 1 ^GS
 ```
+## Publicly available mid-pass data for benchmarking
+
+Sequencing data from 120 libraries generated for the 12 HapMap individuals has been deposited to the Sequence Read Archive under acessession [PRJNA697982](https://www.ncbi.nlm.nih.gov/bioproject/PRJNA697982/). Briefly, 4 replicate libraries were generated using the [plexWell LPS384](https://seqwell.com/products/plexwell-lp-384/) library preparation kit (designed for low-pass applications), and 2 replicate libraries were generated using the [plexWell WGS24](https://seqwell.com/products/plexwell-wgs-24/) library preparation kit (designed for high-pass applications). LPS384 libraries were sequenced at target coverages of 1x and 4x, and WGS24 libraries were sequenced at a target coverage of 4x.
