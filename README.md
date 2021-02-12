@@ -25,7 +25,7 @@ We finally compared the imputed genotypes with the sequencing-based calls before
 
 <img src="IMflagging.png" alt="IM flagging overview" width="550"/>
 
-A call is flagged with IM=0 if sequencing-based genotype and imputed genotype agree fully. IM=1 means the imputed call does not disagree with the sequencing-based call (either because it was missing or we may have only observed one of two alleles in sequencing). IM=2 and IM=3 flag sites with disagreement between sequencing-based and imputed calls. Especially IM=3 calls, where sequencing and imputation called opposite homozygotes, have low genotype accuracy, and may better be set to heterozygous or excluded from downstream analysis. 
+A call is flagged with IM=0 if sequencing-based genotype and imputed genotype agree fully. IM=1 means the imputed call does not disagree with the sequencing-based call (either because it was missing or we may have only observed one of two alleles in sequencing). IM=2 and IM=3 flag sites with disagreement between sequencing-based and imputed calls, where IM=2 calls were heterozygous in sequencing (potentially due to sequencing errors or contamination) and IM=3 calls were homozygous. Especially IM=3 calls where sequencing and imputation disagree most strongly may better be excluded or further refined for downstream analysis. 
 
 
 ## Performance assessment
