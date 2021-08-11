@@ -44,20 +44,63 @@ For single sample genotyping we ran GenotypeGVCFs on the individual .g.vcf.gz fi
 gatk GenotypeGVCFs --use-new-qual-calculator -R /db/Homo_sapiens_assembly38.fasta -V ${sample}.g.vcf.gz -O ${sample}.single.vcf.gz
 ```
 
-For joint genotyping and VQSR we followed the GATK Best Practises, using the following commands:
+For joint genotyping and variant quality filtering we used the following commands, splitting up the GATK-provided wgs_calling_regions.hg38.interval_list into chunks of 1.5Mbp or smaller, and merging the resulting VCFs into one cohort VCF before running VQSR:
 
-``` 
-To be added:
-GenomicsDB
-GenotypeGVCFs > cohort.vcf.gz
 
-VQSR
-VQSRapply > cohort.vqsr.vcf.gz
+```
+gatk GenomicsDBImport \
+        --genomicsdb-workspace-path database.${interval} \
+        -L ${interval} \
+        --batch-size 50 \
+        --consolidate \
+        --merge-input-intervals \
+	${sample1}.g.vcf.gz ${sample2}.g.vcf.gz ... ${sampleN}.g.vcf.gz
 
+gatk GenotypeGVCFs \
+        --only-output-calls-starting-in-intervals \
+        --use-new-qual-calculator \
+        -R /db/Homo_sapiens_assembly38.fasta \
+        -L ${interval} \
+        --disable-bam-index-caching \
+        -V gendb://database.${interval} \
+        -O cohort.${interval}.vcf.gz
+
+gatk MergeVcfs cohort.${interval1}.vcf.gz .... cohort.${intervalN}.vcf.gz \
+        -O cohort.vcf.gz 
+
+gatk VariantRecalibrator -V cohort.vcf.gz \
+        -resource:hapmap,known=false,training=true,truth=true,prior=15.0 /db/hapmap_3.3.hg38.vcf.gz \
+        -resource:omni,known=false,training=true,truth=true,prior=12.0 /db/1000G_omni2.5.hg38.vcf.gz \
+        -resource:1000G,known=false,training=true,truth=false,prior=10.0 /db/1000G_phase1.snps.high_confidence.hg38.vcf.gz \
+        -resource:dbsnp,known=true,training=false,truth=false,prior=2.0 /db/dbsnp_138.hg38.vcf.gz \
+        -an QD -an MQ -an MQRankSum -an ReadPosRankSum -an FS -an SOR \
+        -mode SNP --output vqsr.recal --tranches-file tranches.out \
+        -tranche 100.0 -tranche 99.8 -tranche 99.6 -tranche 99.4 \
+        -tranche 99.2 -tranche 99.0 -tranche 95.0 -tranche 90.0 \
+        --reference /db/Homo_sapiens_assembly38.fasta
+   
+gatk VariantRecalibrator -V cohort.vcf.gz \
+        -resource:mills,known=true,training=true,truth=true,prior=12.0 /db/Mills_and_1000G_gold_standard.indels.hg38.vcf.gz \
+        -resource:dbsnp,known=true,training=false,truth=false,prior=2.0 /db/dbsnp_138.hg38.vcf.gz \
+        -an QD -an FS -an SOR -an ReadPosRankSum -an MQRankSum  \
+        -mode INDEL --output indel_vqsr.recal --tranches-file indel_tranches.out \
+        --reference /db/Homo_sapiens_assembly38.fasta --max-gaussians 4 -tranche 100.0 -tranche 99.0 \
+        -tranche 95.0 -tranche 92.0 -tranche 90.0 
+
+gatk ApplyVQSR -V cohort.vcf.gz \
+        -mode SNP --recal-file vqsr.recal --tranches-file tranches.out \
+        --reference /db/Homo_sapiens_assembly38.fasta --truth-sensitivity-filter-level 99.8 \
+        --output cohort.snprecal.vcf.gz
+
+gatk ApplyVQSR -V cohort.snprecal.vcf.gz \
+        -mode INDEL --recal-file indel_vqsr.recal --tranches-file indel_tranches.out \
+        --reference /db/Homo_sapiens_assembly38.fasta --truth-sensitivity-filter-level 99.0 \
+        --output cohort.vqsr.vcf.gz
+ 
 bcftools view -f PASS cohort.vqsr.vcf.gz -O z > joint.vcf.gz 
 ```
 
-Finally, commands used for GQ filtering, Beagle within-cohort imputation and call flagging (split up by chromosome):
+Finally, the following commands were used for call-level GQ filtering, Beagle within-cohort imputation and call flagging (split up by chromosome):
 
 ```
 vcftools --minGQ 18 --gzvcf joint.${chr}.vcf.gz --stdout --recode | bgzip -c > joint.${chr}.gtGQ17.vcf.gz

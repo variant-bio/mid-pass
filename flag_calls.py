@@ -67,7 +67,15 @@ with gzip.open(sys.argv[1], "r") as file1, gzip.open(sys.argv[2], "r") as file2:
         xcols = x.split("\t")
         ycols = y.split("\t")
 
+        # if x contains sites that were filtered from y -> skip ahead in x
+        while (xcols[1] < ycols[1]):
+            x=next(file1)
+            x = x.strip()
+            xcols = x.split("\t")
+
+
         if not xcols[1] == ycols[1]:
+
             sys.stderr.write("Variants in VCF input files differ:\n")
             sys.stderr.write("File 1:" + "\n")
             sys.stderr.write(x + "\n")
@@ -128,12 +136,12 @@ with gzip.open(sys.argv[1], "r") as file1, gzip.open(sys.argv[2], "r") as file2:
                 # imputed and wgs call are the same
                 if (GTsstr[0] == GTistr[0]) and (GTsstr[1] == GTistr[1]):
                     imputed = 0 
+                    # should check if GQ value is below or above threshold and split the 0 cases into 
                 # all other cases (either wgs was uncalled or no conflict e.g. 0/0 -> 0/1)
                 else:
                     imputed = 1
                 # we do this anyway for all cases    
                 GTo = GTi
-            
  
            
             # write out this sample's info with IM tag added
