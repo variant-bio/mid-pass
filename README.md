@@ -152,8 +152,8 @@ Sequencing data from 120 libraries generated for the 12 HapMap individuals has b
 
 Since writing the article presenting the workflow above, we have further tuned and optimized the pipeline for mid-pass data. Here we share the two major strategies we have identified that significantly improve performance:
 
-1. Stricter site-level filtering pre-imputation: restricting variant calls to the GIAB “easy” regions <sup>[1](#footnotegiab)</sup>
- before imputation improves all metrics. We note that other methods for site-level filtering (see e.g. https://www.illumina.com/science/genomics-research/articles/identifying-genomic-regions-with-high-quality-single-nucleotide-.html) may have similar effects while filtering less of the genome.
+1. Stricter site-level filtering pre-imputation: restricting variant calls to the GIAB “easy” regions<sup>[1](#footnotegiab)</sup>
+ before imputation improves all metrics. Note that other methods for site-level filtering<sup>[2](#footnotefilter)</sup> may have similar effects while filtering less of the genome.
 
 2. Beagle parameter tuning: among several parameters tested, the biggest and most robust impact was seen with the error rate parameter (“err”). Rather than using the default (which estimates from the data), we have found that setting err to 0.05-0.1 gives significant and robust improvements in all metrics.
 
@@ -162,5 +162,9 @@ Combining these two strategies and applying to the same cohort as in the paper, 
 <img src="updated_benchmarks.png" alt="Updated Benchmarking Results" width="550"/>
 
 
-<a name="footnotegiab">1</a>: GRCh38_notinalldifficultregions.bed as described in 
-*https://opendata.nist.gov/pdrsrv/mds2-2190/GRCh38/union/v2.0-GRCh38-Union-README.txt 
+
+
+<a name="footnotegiab">1</a>: GRCh38_notinalldifficultregions.bed as described in https://opendata.nist.gov/pdrsrv/mds2-2190/GRCh38/union/v2.0-GRCh38-Union-README.txt 
+
+<a name="footnotefilter">2</a>: https://www.illumina.com/science/genomics-research/articles/identifying-genomic-regions-with-high-quality-single-nucleotide-.html
+
