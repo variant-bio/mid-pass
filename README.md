@@ -156,9 +156,9 @@ Since writing the article presenting the workflow above, we have further tuned a
 
 2. Beagle parameter tuning: among several parameters tested, the biggest and most robust impact was seen with the error rate parameter (“err”). Rather than using the default (which estimates from the data), we have found that setting err to 0.05-0.1 gives significant and robust improvements in all metrics.
 
-Applying these two strategies to the same cohort as in the paper, we reach 98.8% recall, 98.2% precision, and 97.6% NCR for samples at 4x coverage:
+Combining these two strategies and applying to the same cohort as in the paper, we reach 98.8% recall, 98.2% precision, and 97.6% NCR for samples at 4x coverage:
 
-<img src="updated_benchmarks.png" alt="Updated Benchmarking Results" width="800"/>
+<img src="updated_benchmarks.png" alt="Updated Benchmarking Results" width="600"/>
 
 
 
