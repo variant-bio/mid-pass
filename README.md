@@ -1,6 +1,6 @@
 # Methods for mid-pass whole genome sequencing
 
-This document provides an overview of how the sequencing data in  “Mid-pass whole genome sequencing enables biomedical genetic studies of diverse populations” were processed. 
+This document provides an overview of how the sequencing data in “Mid-pass whole genome sequencing enables biomedical genetic studies of diverse populations” were processed. 
 
 This code is freely available for academic and non-commercial research purposes [LICENSE](LICENSE.md).
 
@@ -147,3 +147,18 @@ vcf-compare -g $sample.truth.vcf.gz $sample.vcf.gz | grep -A 1 ^GS
 ## Publicly available mid-pass data for benchmarking
 
 Sequencing data from 120 libraries generated for the 12 HapMap individuals has been deposited to the Sequence Read Archive under acessession [PRJNA697982](https://www.ncbi.nlm.nih.gov/bioproject/PRJNA697982/). Briefly, 4 replicate libraries were generated using the [plexWell LPS384](https://seqwell.com/products/plexwell-lp-384/) library preparation kit (designed for low-pass applications), and 2 replicate libraries were generated using the [plexWell WGS24](https://seqwell.com/products/plexwell-wgs-24/) library preparation kit (designed for high-pass applications). LPS384 libraries were sequenced at target coverages of 1x and 4x, and WGS24 libraries were sequenced at a target coverage of 4x.
+
+## Updated benchmarking results
+
+Since writing the article presenting the workflow above, we have further tuned and optimized the pipeline for mid-pass data. Here we share the two major strategies we have identified that significantly improve performance:
+
+1. Stricter site-level filtering pre-imputation: removing variant calls in GIAB “difficult” regions before imputation improves all metrics. We note that other methods for site-level filtering (see e.g. https://www.illumina.com/science/genomics-research/articles/identifying-genomic-regions-with-high-quality-single-nucleotide-.html) may have similar effects while filtering less of the genome.
+
+2. Beagle parameter tuning: among several parameters tested, the biggest and most robust impact was seen with the error rate parameter (“err”). Rather than using the default (which estimates from the data), we have found that setting err to 0.05-0.1 gives significant and robust improvements in all metrics.
+
+Applying these two strategies to the same cohort as in the paper, we reach 98.8% recall, 98.2% precision, and 97.6% NCR for samples at 4x coverage:
+
+<img src="updated_benchmarks.png" alt="Updated Benchmarking Results" width="800"/>
+
+
+
