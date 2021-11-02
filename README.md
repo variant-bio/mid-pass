@@ -1,8 +1,10 @@
 # Methods for mid-pass whole genome sequencing
 
-This document provides an overview of how the sequencing data in “Mid-pass whole genome sequencing enables biomedical genetic studies of diverse populations” were processed. 
+This document provides an overview of the pipeline and how data were processed in our [manuscript](https://bmcgenomics.biomedcentral.com/articles/10.1186/s12864-021-07949-9) published in BMC Genomics. If you use this pipeline or the scripts developed here, please cite our work:
 
-This code is freely available for academic and non-commercial research purposes [LICENSE](LICENSE.md).
+Emde, AK., Phipps-Green, A., Cadzow, M. et al. Mid-pass whole genome sequencing enables biomedical genetic studies of diverse populations. BMC Genomics 22, 666 (2021).
+
+All code is freely available for academic and non-commercial research purposes [LICENSE](LICENSE.md).
 
 ## Processing workflow to generate fully phased and imputed VCF
 
